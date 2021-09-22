@@ -52,6 +52,27 @@ int main(int argc, char *argv[]) {
                                    gMaterialIndex);
   mscTest.simulate();
   mscTest.writeHists();
+
+  AnnihilationTest annihilation_test(gInputDataDir,
+                                   gPrimaryEnergy,
+                                   gNumPrimaries,
+                                   gMaterialIndex);
+  annihilation_test.simulate();
+  annihilation_test.writeHists();
+
+  ComptonPrimaryTest compton_primary_test(gInputDataDir,
+                                     gPrimaryEnergy,
+                                     gNumPrimaries,
+                                     gMaterialIndex);
+  compton_primary_test.simulate();
+  compton_primary_test.writeHists();
+
+  ComptonSecondaryTest compton_secondary_test(gInputDataDir,
+                                     gPrimaryEnergy,
+                                     gNumPrimaries,
+                                     gMaterialIndex);
+  compton_secondary_test.simulate();
+  compton_secondary_test.writeHists();
 }
 
 //

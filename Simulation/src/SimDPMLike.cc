@@ -263,6 +263,7 @@ int KeepTrackingElectron(SimElectronData& elData, SimMaterialData& matData, Geom
     track.fEkin = 0.0;
     return 4;
   }
+
   //
   const double theElectronCut = matData.fElectronCut;
   //
@@ -513,59 +514,7 @@ void KeepTrackingPhoton(SimPhotonData& phData, SimMaterialData& matData, Geom& g
     if (r1 < theProb) {
       // Compton interaction: Klein-Nishina like
       // the photon scattering angle and post-interafctin energy fraction
-      const double theEps = phData.GetTheKNTables()->SampleEnergyTransfer(track.fEkin, Random::UniformRand(), Random::UniformRand(), Random::UniformRand());
-      const double kappa  = track.fEkin*kInvEMC2;
-      const double phCost = 1.0-(1.0-theEps)/(theEps*kappa); // 1- (1-cost)
-      const double phEner = theEps*track.fEkin;
-      const double phPhi  = 2.0*kPI*Random::UniformRand();
-      const double elEner = track.fEkin-phEner;
-      // insert the secondary e- only if ist energy is above the tracking cut
-      // and deposit the corresponding enrgy otherwise
-      if (elEner < theElectronCut) {
-        geom.Score(elEner, track.fBoxIndx[2]);
-        //geom.Score(elEner, track.fPosition[2]);
-      } else {
-        // insert secondary e- but first compute its cost
-        const double e0 = track.fEkin*kInvEMC2;
-        double elCost   = (1.0+e0)*std::sqrt((1.0-theEps)/(e0*(2.0+e0*(1.0-theEps))));
-        //
-        Track& aTrack        = TrackStack::Instance().Insert();
-        aTrack.fType         = -1;
-        aTrack.fEkin         = elEner;
-        aTrack.fMatIndx      = track.fMatIndx;
-        aTrack.fPosition[0]  = track.fPosition[0];
-        aTrack.fPosition[1]  = track.fPosition[1];
-        aTrack.fPosition[2]  = track.fPosition[2];
-        aTrack.fBoxIndx[0]   = track.fBoxIndx[0];
-        aTrack.fBoxIndx[1]   = track.fBoxIndx[1];
-        aTrack.fBoxIndx[2]   = track.fBoxIndx[2];
-        const double sint    = std::sqrt((1.0+elCost)*(1.0-elCost));
-        const double phi     = phPhi+kPI;
-        aTrack.fDirection[0] = sint*std::cos(phi);
-        aTrack.fDirection[1] = sint*std::sin(phi);
-        aTrack.fDirection[2] = elCost;
-        RotateToLabFrame(aTrack.fDirection, track.fDirection);
-      }
-      // update the photon properties:
-      // stop the photon if its energy dropepd below the photon absorption threshold
-      track.fEkin = phEner;
-      if (track.fEkin < theGammaCut) {
-        geom.Score(track.fEkin, track.fBoxIndx[2]);
-        //geom.Score(track.fEkin, track.fPosition[2]);
-        track.fEkin = 0.0;
-        return;
-      } else {
-        double phSint = std::sqrt((1.0-phCost)*(1.0+phCost));
-        double u1 = phSint*std::cos(phPhi);
-        double u2 = phSint*std::sin(phPhi);
-        double u3 = phCost;
-        // rotate new direction from the scattering to the lab frame
-        RotateToLabFrame(u1, u2, u3, track.fDirection[0], track.fDirection[1], track.fDirection[2]);
-        // update track direction
-        track.fDirection[0] = u1;
-        track.fDirection[1] = u2;
-        track.fDirection[2] = u3;
-      }
+      PerformCompton(track, phData.GetTheKNTables(), matData, geom);
       continue;
     }
 
@@ -788,4 +737,67 @@ void PerformAnnihilation(Track& track) {
   aTrack1.fDirection[0] = -rx;
   aTrack1.fDirection[1] = -ry;
   aTrack1.fDirection[2] = -rz;
+}
+
+void PerformCompton(Track &track, SimKNTables* theKNTables, SimMaterialData& matData, Geom& geom) {
+    const double kPI      = 3.1415926535897932;
+    const double kEMC2    = 0.510991;
+    const double kInvEMC2 = 1.0/kEMC2;
+    //
+    const double theElectronCut = matData.fElectronCut;
+    const double theGammaCut    = matData.fGammaCut;
+
+    const double theEps = theKNTables->SampleEnergyTransfer(track.fEkin, Random::UniformRand(), Random::UniformRand(), Random::UniformRand());
+    const double kappa  = track.fEkin*kInvEMC2;
+    const double phCost = 1.0-(1.0-theEps)/(theEps*kappa); // 1- (1-cost)
+    const double phEner = theEps*track.fEkin;
+    const double phPhi  = 2.0*kPI*Random::UniformRand();
+    const double elEner = track.fEkin-phEner;
+    // insert the secondary e- only if ist energy is above the tracking cut
+    // and deposit the corresponding enrgy otherwise
+    if (elEner < theElectronCut) {
+        geom.Score(elEner, track.fBoxIndx[2]);
+        //geom.Score(elEner, track.fPosition[2]);
+    } else {
+        // insert secondary e- but first compute its cost
+        const double e0 = track.fEkin*kInvEMC2;
+        double elCost   = (1.0+e0)*std::sqrt((1.0-theEps)/(e0*(2.0+e0*(1.0-theEps))));
+        //
+        Track& aTrack        = TrackStack::Instance().Insert();
+        aTrack.fType         = -1;
+        aTrack.fEkin         = elEner;
+        aTrack.fMatIndx      = track.fMatIndx;
+        aTrack.fPosition[0]  = track.fPosition[0];
+        aTrack.fPosition[1]  = track.fPosition[1];
+        aTrack.fPosition[2]  = track.fPosition[2];
+        aTrack.fBoxIndx[0]   = track.fBoxIndx[0];
+        aTrack.fBoxIndx[1]   = track.fBoxIndx[1];
+        aTrack.fBoxIndx[2]   = track.fBoxIndx[2];
+        const double sint    = std::sqrt((1.0+elCost)*(1.0-elCost));
+        const double phi     = phPhi+kPI;
+        aTrack.fDirection[0] = sint*std::cos(phi);
+        aTrack.fDirection[1] = sint*std::sin(phi);
+        aTrack.fDirection[2] = elCost;
+        RotateToLabFrame(aTrack.fDirection, track.fDirection);
+    }
+    // update the photon properties:
+    // stop the photon if its energy dropepd below the photon absorption threshold
+    track.fEkin = phEner;
+    if (track.fEkin < theGammaCut) {
+        geom.Score(track.fEkin, track.fBoxIndx[2]);
+        //geom.Score(track.fEkin, track.fPosition[2]);
+        track.fEkin = 0.0;
+        return;
+    } else {
+        double phSint = std::sqrt((1.0-phCost)*(1.0+phCost));
+        double u1 = phSint*std::cos(phPhi);
+        double u2 = phSint*std::sin(phPhi);
+        double u3 = phCost;
+        // rotate new direction from the scattering to the lab frame
+        RotateToLabFrame(u1, u2, u3, track.fDirection[0], track.fDirection[1], track.fDirection[2]);
+        // update track direction
+        track.fDirection[0] = u1;
+        track.fDirection[1] = u2;
+        track.fDirection[2] = u3;
+    }
 }

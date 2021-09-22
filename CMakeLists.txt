@@ -32,23 +32,23 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
 # Set the headers and sources for the data GENeration an SIMulation parts
 #
 file ( GLOB headers_GEN
-    ${CMAKE_SOURCE_DIR}/DataInit/inc/*.hh
-    ${CMAKE_SOURCE_DIR}/Utils/inc/*.hh
+    ${PROJECT_SOURCE_DIR}/DataInit/inc/*.hh
+    ${PROJECT_SOURCE_DIR}/Utils/inc/*.hh
   )
 file ( GLOB cxx_sources_GEN
-    ${CMAKE_SOURCE_DIR}/DataInit/src/*.cc
-    ${CMAKE_SOURCE_DIR}/Utils/src/*.cc
+    ${PROJECT_SOURCE_DIR}/DataInit/src/*.cc
+    ${PROJECT_SOURCE_DIR}/Utils/src/*.cc
   )
 
 file ( GLOB headers_SIM
-    ${CMAKE_SOURCE_DIR}*.hh
-    ${CMAKE_SOURCE_DIR}/Simulation/inc/*.hh
+    ${PROJECT_SOURCE_DIR}*.hh
+    ${PROJECT_SOURCE_DIR}/Simulation/inc/*.hh
   )
 file ( GLOB cxx_sources_SIM
-    ${CMAKE_SOURCE_DIR}/Simulation/src/*.cc
+    ${PROJECT_SOURCE_DIR}/Simulation/src/*.cc
   )
 file ( GLOB validation_sources
-        ${CMAKE_SOURCE_DIR}/modelValidationTests/src/*.cc
+        ${PROJECT_SOURCE_DIR}/modelValidationTests/src/*.cc
         )
 
 
@@ -56,32 +56,32 @@ file ( GLOB validation_sources
 # Locate headers
 #
 include_directories ( ${Geant4_INCLUDE_DIR}
-                      ${CMAKE_SOURCE_DIR}
-                      ${CMAKE_SOURCE_DIR}/DataInit/inc
-                      ${CMAKE_SOURCE_DIR}/Utils/inc
-                      ${CMAKE_SOURCE_DIR}/Simulation/inc/
-                      ${CMAKE_SOURCE_DIR}/modelValidationTests/inc/
+                      ${PROJECT_SOURCE_DIR}
+                      ${PROJECT_SOURCE_DIR}/DataInit/inc
+                      ${PROJECT_SOURCE_DIR}/Utils/inc
+                      ${PROJECT_SOURCE_DIR}/Simulation/inc/
+                      ${PROJECT_SOURCE_DIR}/modelValidationTests/inc/
                     )
 
 #----------------------------------------------------------------------------
 # Build target
 #
-add_executable ( dpm_GenerateData ${CMAKE_SOURCE_DIR}/dpm_GenerateData.cc ${cxx_sources_GEN})
+add_executable ( dpm_GenerateData ${PROJECT_SOURCE_DIR}/dpm_GenerateData.cc ${cxx_sources_GEN})
 target_link_libraries (dpm_GenerateData  ${Geant4_LIBRARIES})
 
-add_executable ( dpm_Simulate ${CMAKE_SOURCE_DIR}/dpm_Simulate.cc ${cxx_sources_SIM})
+add_executable ( dpm_Simulate ${PROJECT_SOURCE_DIR}/dpm_Simulate.cc ${cxx_sources_SIM})
 target_link_libraries (dpm_Simulate)
 
 ## add model level test for bremsstrahlung
-add_executable ( test_brem ${CMAKE_SOURCE_DIR}/test_brem.cc ${cxx_sources_SIM})
+add_executable ( test_brem ${PROJECT_SOURCE_DIR}/test_brem.cc ${cxx_sources_SIM})
 target_link_libraries (test_brem)
 
-add_library(validation STATIC ${validation_sources} ${cxx_sources_SIM})
-target_link_libraries(validation)
+add_library(dpm_validation STATIC ${validation_sources} ${cxx_sources_SIM})
+target_link_libraries(dpm_validation)
 
 add_executable(modeltests model_validation.cpp)
-target_link_libraries (modeltests validation)
+target_link_libraries (modeltests dpm_validation)
 
-install (TARGETS validation DESTINATION ${CMAKE_SOURCE_DIR}/lib)
-install (FILES  ${CMAKE_SOURCE_DIR}/modelValidationTests/inc/testAPI.h DESTINATION ${CMAKE_SOURCE_DIR}/lib)
+install (TARGETS dpm_validation DESTINATION ${PROJECT_SOURCE_DIR}/lib)
+install (FILES  ${PROJECT_SOURCE_DIR}/modelValidationTests/inc/testAPI.h DESTINATION ${PROJECT_SOURCE_DIR}/lib)
 

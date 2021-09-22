@@ -17,6 +17,7 @@
 //       simulation prototype only but the simulation itself do not depend on
 //       any speciality of the current geometry implementation.
 
+#include "SimKNTables.hh"
 class Geom;
 class SimMaterialData;
 class SimElectronData;
@@ -86,8 +87,9 @@ void   PerformMoller(Track& track, SimMollerTables* theMollerTable);
 //       energy is `track.fEkin`.
 void PerformMSCAngularDeflection(Track& track, double ekin0, SimGSTables* theGSTables);
 
-
 // Auxiliary funtion for simple e+e- annihilation
 void   PerformAnnihilation(Track& track);
 
+// Auxiliary funtion for simple compton scattering
+void PerformCompton(Track &track, SimKNTables* theKNTables, SimMaterialData& matData, Geom& geom);
 #endif // SimDPMLike_HH
