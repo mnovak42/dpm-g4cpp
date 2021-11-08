@@ -100,6 +100,7 @@ public:
   // writes the histograms into the `fname` file
   void   Write(const std::string& fname, int nprimaries);
 
+  std::vector<double> histogram();
 
 private:
 

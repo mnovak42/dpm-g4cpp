@@ -42,7 +42,7 @@ class Track;
 // The resulted depth dose histogram of the simulation is written into the `hist.sim`
 // file at the termination of the simulation.
 //
-void  Simulate(int nprimary, double eprimary, bool iselectron, double lbox, SimMaterialData& matData, SimElectronData& elData, SimPhotonData& phData, int geomIndex);
+Geom  Simulate(int nprimary, double eprimary, bool iselectron, double lbox, SimMaterialData& matData, SimElectronData& elData, SimPhotonData& phData, int geomIndex);
 
 
 

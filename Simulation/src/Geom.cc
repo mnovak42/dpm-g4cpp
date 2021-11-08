@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstdio>
 #include <iostream>
+#include <assert.h>
 
 
 Geom::Geom(double lbox, SimMaterialData* matData, int geomIndex)
@@ -22,7 +23,7 @@ double Geom::DistanceToBoundary(double* r, double* v, int* i) {
   //
   // Let's say that kExtent is the max extent of our geometry except the -z
   // direction in which it's only half box
-  if (std::abs(r[0])>kExtent || std::abs(r[1])>kExtent || r[2]>kExtent || r[2]<-fLBox) {
+  if (std::abs(r[0])>kExtent || std::abs(r[1])>kExtent || r[2]>kExtent || r[2]< -fLBox) {
     // indicates out of the geometry
     return -1.0;
   }
@@ -127,6 +128,10 @@ void Geom::Score(double edep, int iz) {
     fEdepHist[indx] += edep;
     fStepHist[indx] += 1.0;
   }
+}
+
+std::vector<double> Geom::histogram(){
+    return fEdepHist;
 }
 
 
