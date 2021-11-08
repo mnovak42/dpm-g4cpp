@@ -3,6 +3,7 @@
 #include "SimElectronData.hh"
 #include "SimPhotonData.hh"
 
+#include "Geom.hh"
 #include "SimDPMLike.hh"
 
 #include "Configuration.hh"
