@@ -107,7 +107,7 @@ void   Simulate(int nprimary, double eprimary, bool iselectron, double lbox, Sim
           // VOXEL MATERIAL DENSITY.
           //
           // NOTE: density must be in g/cm3 units. (cannot be vacuum at this point)
-          double theVoxelMatDensity = geom.GetVoxelMaterialDensity(theVoxelMatIndx);
+//          double theVoxelMatDensity = geom.GetVoxelMaterialDensity(theVoxelMatIndx);
           //
           // this will be used to alter between an hinge and remaining sub MSC-step
           bool   isMSCHinge    = true;
@@ -165,7 +165,7 @@ void   Simulate(int nprimary, double eprimary, bool iselectron, double lbox, Sim
             if (theVoxelMatIndx<0) {
               continue;
             }
-            theVoxelMatDensity = geom.GetVoxelMaterialDensity(theVoxelMatIndx);
+//            theVoxelMatDensity = geom.GetVoxelMaterialDensity(theVoxelMatIndx);
             switch (whatHappend) {
               // (1) discrete bremsstrahlung interaction should be sampled:
               //     - sample energy transfer to the photon (if any)
