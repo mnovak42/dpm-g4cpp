@@ -107,7 +107,7 @@ void   Simulate(int nprimary, double eprimary, bool iselectron, double lbox, Sim
           // VOXEL MATERIAL DENSITY.
           //
           // NOTE: density must be in g/cm3 units. (cannot be vacuum at this point)
-          double theVoxelMatDensity = geom.GetVoxelMaterialDensity(theVoxelMatIndx);
+//          double theVoxelMatDensity = geom.GetVoxelMaterialDensity(theVoxelMatIndx);
           //
           // this will be used to alter between an hinge and remaining sub MSC-step
           bool   isMSCHinge    = true;
@@ -165,7 +165,7 @@ void   Simulate(int nprimary, double eprimary, bool iselectron, double lbox, Sim
             if (theVoxelMatIndx<0) {
               continue;
             }
-            theVoxelMatDensity = geom.GetVoxelMaterialDensity(theVoxelMatIndx);
+//            theVoxelMatDensity = geom.GetVoxelMaterialDensity(theVoxelMatIndx);
             switch (whatHappend) {
               // (1) discrete bremsstrahlung interaction should be sampled:
               //     - sample energy transfer to the photon (if any)
@@ -348,30 +348,32 @@ int KeepTrackingElectron(SimElectronData& elData, SimMaterialData& matData, Geom
       whatHappend = 2;
     }
     double stepElastic = numTr1MFP/delNumTr1MFP;
-    if (stepElastic < stepLength) {
-      // elastic interaction happens:
-      // - either the hinge: sample and apply deflection and update numElMFP to the
-      //                     remaining part
-      // - end of 2nd step : nothing to do just resample the #mfp left since all
-      //                     has been eaten up by the step lenght travelled so far
-      // Before anything, refine the comutation of the mfp (i.e. the first transprt
-      // mean free path in acse of elastic) regarding its energy dependence.
-      // NOTE: that the 1/mfp values were computed at the mid-point energy (brem
-      //       and elatsic since Moller is assumed to be constant), assuming that
-      //       the geometry step will be taken and the dEdx is constant along this
-      //       step (i.e. no energy dependence).
-      //       Here we know that actually not the geometry step, but the stepElastic
-      //       is taken since that is the shortest. So we recompute the mid-step-point
-      //       energy according to the step lenght of stepElastic and re-evaluate
-      //       the 1./mfp i.e. 1/tr1mfp at this energy value
-      stepElastic = numTr1MFP/(elData.GetITr1MFPElastic()->GetITr1MFPPerDensity(track.fEkin, theVoxelMatIndx)*theVoxelMatDensity);
-      midStepE    = std::max( track.fEkin-0.5*stepElastic*theDEDX, theElectronCut );
-      delNumTr1MFP = elData.GetITr1MFPElastic()->GetITr1MFPPerDensity(midStepE, theVoxelMatIndx)*theVoxelMatDensity;
-      // don't let longer than the original in order to make sure that it is still the
-      // minimum of all step lenghts
-      stepElastic = std::min(stepLength, numTr1MFP/delNumTr1MFP);
-      stepLength  = stepElastic;
-      whatHappend = 3;
+      if (stepElastic < stepLength) {
+        // elastic interaction happens:
+        // - either the hinge: sample and apply deflection and update numElMFP to the
+        //                     remaining part
+        // - end of 2nd step : nothing to do just resample the #mfp left since all
+        //                     has been eaten up by the step lenght travelled so far
+        // Before anything, refine the comutation of the mfp (i.e. the first transprt
+        // mean free path in acse of elastic) regarding its energy dependence.
+        // NOTE: that the 1/mfp values were computed at the mid-point energy (brem
+        //       and elatsic since Moller is assumed to be constant), assuming that
+        //       the geometry step will be taken and the dEdx is constant along this
+        //       step (i.e. no energy dependence).
+        //       Here we know that actually not the geometry step, but the stepElastic
+        //       is taken since that is the shortest. So we recompute the mid-step-point
+        //       energy according to the step lenght of stepElastic and re-evaluate
+        //       the 1./mfp i.e. 1/tr1mfp at this energy value
+        stepElastic = numTr1MFP/(elData.GetITr1MFPElastic()->GetITr1MFPPerDensity(track.fEkin, theVoxelMatIndx)*theVoxelMatDensity);
+        midStepE    = std::max( track.fEkin-0.5*stepElastic*theDEDX, theElectronCut );
+        delNumTr1MFP = elData.GetITr1MFPElastic()->GetITr1MFPPerDensity(midStepE, theVoxelMatIndx)*theVoxelMatDensity;
+        // don't let longer than the original in order to make sure that it is still the
+        // minimum of all step lengths
+        stepElastic = numTr1MFP/delNumTr1MFP ;
+        if (stepElastic < stepLength) {
+          stepLength  = stepElastic;
+          whatHappend = 3;
+        }
     }
     //
     // At this point, we know the step lenght so we can decrease all #mfp by
