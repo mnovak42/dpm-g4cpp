@@ -17,6 +17,7 @@
 //       simulation prototype only but the simulation itself do not depend on
 //       any speciality of the current geometry implementation.
 
+#include "SimKNTables.hh"
 class Geom;
 class SimMaterialData;
 class SimElectronData;
@@ -41,7 +42,7 @@ class Track;
 // The resulted depth dose histogram of the simulation is written into the `hist.sim`
 // file at the termination of the simulation.
 //
-void  Simulate(int nprimary, double eprimary, bool iselectron, double lbox, SimMaterialData& matData, SimElectronData& elData, SimPhotonData& phData, int geomIndex);
+Geom  Simulate(int nprimary, double eprimary, bool iselectron, double lbox, SimMaterialData& matData, SimElectronData& elData, SimPhotonData& phData, int geomIndex);
 
 
 
@@ -86,8 +87,9 @@ void   PerformMoller(Track& track, SimMollerTables* theMollerTable);
 //       energy is `track.fEkin`.
 void PerformMSCAngularDeflection(Track& track, double ekin0, SimGSTables* theGSTables);
 
-
 // Auxiliary funtion for simple e+e- annihilation
 void   PerformAnnihilation(Track& track);
 
+// Auxiliary funtion for simple compton scattering
+void PerformCompton(Track &track, SimKNTables* theKNTables, SimMaterialData& matData, Geom& geom);
 #endif // SimDPMLike_HH

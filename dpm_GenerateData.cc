@@ -30,11 +30,14 @@
 //
 // location where the generated data should be written (the dir. must exist)
 static std::string gOutputDataDir("./data");
+// location where the input data should be read (the dir. must exist)
+static std::string gInputDataDir("./data");
 // one of the pre-defined configuration settings index (see more in `Configuration.hh`)
 static int         gConfigIndex = 0;
 //
 static struct option options[] = {
-  {"input-data-dir      (where the pre-generated data will be written)  - default: ./data" , required_argument, 0, 'd'},
+  {"output-data-dir      (where the pre-generated data will be written)  - default: ./data" , required_argument, 0, 'd'},
+  {"input-data-dir      (where the pre-generated data will be read)  - default: ../SBTables/data" , required_argument, 0, 'i'},
   {"configuration-index (one of the pre-defined configuration settings) - default: 0"      , required_argument, 0, 'c'},
   {"help"                                                                                  , no_argument      , 0, 'h'},
   {0, 0, 0, 0}
@@ -88,7 +91,7 @@ int main(int argc, char *argv[]) {
   // - etc.
   // NOTE: the common kinetic energy grid is from the secondary e- production threshold
   //       till the maximum kinetic energy specified above
-  ElectronData theElectronData ( "../SBTables/data",
+  ElectronData theElectronData ( gInputDataDir,
                                  theConfig.fTheG4MaterialNames.size(),
                                  theConfig.fElectronCut*0.99,
                                  theConfig.fMaxEkin,
@@ -147,7 +150,7 @@ void Help() {
 void GetOpt(int argc, char *argv[]) {
   while (true) {
     int c, optidx = 0;
-    c = getopt_long(argc, argv, "hd:c:", options, &optidx);
+    c = getopt_long(argc, argv, "hd:c:i:", options, &optidx);
     if (c == -1)
       break;
     switch (c) {
@@ -157,6 +160,9 @@ void GetOpt(int argc, char *argv[]) {
     case 'd':
        gOutputDataDir = optarg;
        break;
+    case 'i':
+        gInputDataDir = optarg;
+        break;
     case 'c':
        gConfigIndex   = std::stoi(optarg);
        break;

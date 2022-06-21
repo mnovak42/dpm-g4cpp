@@ -3,6 +3,7 @@
 #include "SimElectronData.hh"
 #include "SimPhotonData.hh"
 
+#include "Geom.hh"
 #include "SimDPMLike.hh"
 
 #include "Configuration.hh"
@@ -74,6 +75,7 @@ int main(int argc, char *argv[]) {
   // - configuration and material related data
   SimMaterialData theSimMaterialData;
   theSimMaterialData.Load(gInputDataDir);
+
   //
   // Execute the simulation according to the iput arguments
   bool isElectron = (gPrimaryParticle=="e-");
